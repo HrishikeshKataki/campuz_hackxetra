@@ -152,46 +152,45 @@ class PostsViewModel extends ChangeNotifier {
   }
 
 // Upload post function modified to accept a NetworkImage URL
-uploadPosts(BuildContext context, String imageUrl) async {
-  try {
-    loading = true;
-    notifyListeners();
-    // Upload the image URL as text to Firebase
-    await postService.uploadPost(null, location!, description!, imageUrl); // Assuming uploadPost can handle imageUrl as a string
-    loading = false;
-    resetPost();
-    notifyListeners();
-  } catch (e) {
-    print(e);
-    loading = false;
-    resetPost();
-    showInSnackBar('Uploaded successfully!', context);
-    notifyListeners();
-  }
-}
-
-// Upload profile picture function modified to accept a NetworkImage URL
-uploadProfilePicture(BuildContext context, String imageUrl) async {
-  if (imageUrl.isEmpty) {
-    showInSnackBar('Please provide an image URL', context);
-  } else {
+  uploadPosts(BuildContext context) async {
     try {
       loading = true;
       notifyListeners();
-      // Upload the image URL as text to Firebase
-      await postService.uploadProfilePicture(null, firebaseAuth.currentUser !, imageUrl); // Assuming uploadProfilePicture can handle imageUrl as a string
+      await postService.uploadPost(mediaUrl!, location!, description!);
       loading = false;
-      Navigator.of(context)
-          .pushReplacement(CupertinoPageRoute(builder: (_) => TabScreen()));
+      resetPost();
       notifyListeners();
     } catch (e) {
       print(e);
       loading = false;
+      resetPost();
       showInSnackBar('Uploaded successfully!', context);
       notifyListeners();
     }
   }
-}
+
+  uploadProfilePicture(BuildContext context) async {
+    if (mediaUrl == null) {
+      showInSnackBar('Please select an image', context);
+    } else {
+      try {
+        loading = true;
+        notifyListeners();
+        await postService.uploadProfilePicture(
+            mediaUrl!, firebaseAuth.currentUser!);
+        loading = false;
+        Navigator.of(context)
+            .pushReplacement(CupertinoPageRoute(builder: (_) => TabScreen()));
+        notifyListeners();
+      } catch (e) {
+        print(e);
+        loading = false;
+        showInSnackBar('Uploaded successfully!', context);
+        notifyListeners();
+      }
+    }
+  }
+
   resetPost() {
     mediaUrl = null;
     description = null;
